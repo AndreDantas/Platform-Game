@@ -20,14 +20,16 @@ public abstract class StuckOnHit : Projectile
 
         if (!CheckLayer(col.gameObject.layer))
         {
-            if (rb && !stuck)
-            {
-                rb.simulated = false;
-                stuck = true;
-                this.transform.parent = col.gameObject.transform;
-                OnStuck(col);
+            Hitbox hb = col.gameObject.GetComponent<Hitbox>();
+            if (hb == null)
+                if (rb && !stuck)
+                {
+                    rb.simulated = false;
+                    stuck = true;
+                    this.transform.parent = col.gameObject.transform;
+                    OnStuck(col);
 
-            }
+                }
         }
         base.OnTriggerEnter2D(col);
     }
@@ -35,14 +37,16 @@ public abstract class StuckOnHit : Projectile
     {
         if (!CheckLayer(col.gameObject.layer))
         {
-            if (rb && !stuck)
-            {
-                rb.simulated = false;
-                stuck = true;
-                this.transform.parent = col.gameObject.transform;
-                OnStuck(col);
+            Hitbox hb = col.gameObject.GetComponent<Hitbox>();
+            if (hb == null)
+                if (rb && !stuck)
+                {
+                    rb.simulated = false;
+                    stuck = true;
+                    this.transform.parent = col.gameObject.transform;
+                    OnStuck(col);
 
-            }
+                }
         }
         base.OnCollisionEnter2D(col);
     }

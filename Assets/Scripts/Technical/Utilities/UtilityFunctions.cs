@@ -900,6 +900,9 @@ public static class UtilityFunctions
         Gizmos.DrawWireCube(b.center, b.size);
     }
 
+    public const int DefaultLayerMask = ~0;
+
+
     /// <summary>
     /// Draws a circle in a DrawGizmos function.
     /// </summary>

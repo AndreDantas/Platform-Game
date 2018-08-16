@@ -12,8 +12,9 @@ public static class Check2DCollisions
     /// <param name="edgeOffSet">The distance from the edges of the collider.</param>
     /// <param name="distance">Distance to check for collision.</param>
     /// <returns></returns>
-    public static List<GameObject> CheckCollisionUp(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f)
+    public static List<GameObject> CheckCollisionUp(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f, int layerMask = ~0)
     {
+
         List<GameObject> result = new List<GameObject>();
         if (boxCol)
         {
@@ -26,7 +27,7 @@ public static class Check2DCollisions
             float height = boxCol.size.y - 0.01f;
             if (rayCastCount == 1)
             {
-                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y + height / 2), Vector2.up, distance);
+                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y + height / 2), Vector2.up, distance, layerMask);
                 Debug.DrawRay(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y + height / 2), new Vector2(0, distance), Color.red, 0.05f);
                 if (hit.collider != null)
                 {
@@ -41,7 +42,7 @@ public static class Check2DCollisions
                 for (int i = 0; i < rayCastCount; i++)
                 {
                     Vector2 origin = new Vector2(((boxCol.gameObject.transform.position.x - width / 2f) + division * i), boxCol.gameObject.transform.position.y + height / 2);
-                    hits.Add(Physics2D.Raycast(origin, Vector2.up, distance));
+                    hits.Add(Physics2D.Raycast(origin, Vector2.up, distance, layerMask));
                     Debug.DrawRay(origin, new Vector2(0, distance), Color.red, 0.05f);
                 }
                 for (int i = 0; i < hits.Count; i++)
@@ -73,7 +74,7 @@ public static class Check2DCollisions
     /// <param name="edgeOffSet">The distance from the edges of the collider.</param>
     /// <param name="distance">Distance to check for collision.</param>
     /// <returns></returns>
-    public static List<GameObject> CheckCollisionDown(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f)
+    public static List<GameObject> CheckCollisionDown(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f, int layerMask = ~0)
     {
         List<GameObject> result = new List<GameObject>();
         if (boxCol)
@@ -87,7 +88,7 @@ public static class Check2DCollisions
             float height = boxCol.size.y - 0.01f;
             if (rayCastCount == 1)
             {
-                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y - height / 2), Vector2.down, distance);
+                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y - height / 2), Vector2.down, distance, layerMask);
                 Debug.DrawRay(new Vector2(boxCol.gameObject.transform.position.x, boxCol.gameObject.transform.position.y - height / 2), new Vector2(0, -distance), Color.red, 0.05f);
                 if (hit.collider != null)
                 {
@@ -102,7 +103,7 @@ public static class Check2DCollisions
                 for (int i = 0; i < rayCastCount; i++)
                 {
                     Vector2 origin = new Vector2(((boxCol.gameObject.transform.position.x - width / 2f) + division * i), boxCol.gameObject.transform.position.y - height / 2);
-                    hits.Add(Physics2D.Raycast(origin, Vector2.down, distance));
+                    hits.Add(Physics2D.Raycast(origin, Vector2.down, distance, layerMask));
                     Debug.DrawRay(origin, new Vector2(0, -distance), Color.red, 0.05f);
                 }
                 for (int i = 0; i < hits.Count; i++)
@@ -134,7 +135,7 @@ public static class Check2DCollisions
     /// <param name="edgeOffSet">The distance from the edges of the collider.</param>
     /// <param name="distance">Distance to check for collision.</param>
     /// <returns></returns>
-    public static List<GameObject> CheckCollisionRight(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f)
+    public static List<GameObject> CheckCollisionRight(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f, int layerMask = ~0)
     {
         List<GameObject> result = new List<GameObject>();
         if (boxCol)
@@ -148,7 +149,7 @@ public static class Check2DCollisions
             float height = boxCol.size.y - edgeOffSet * 2;
             if (rayCastCount == 1)
             {
-                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x + width / 2, boxCol.gameObject.transform.position.y), Vector2.right, distance);
+                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x + width / 2, boxCol.gameObject.transform.position.y), Vector2.right, distance, layerMask);
                 Debug.DrawRay(new Vector2(boxCol.gameObject.transform.position.x - width / 2, boxCol.gameObject.transform.position.y), new Vector2(distance, 0), Color.red, 0.05f);
                 if (hit.collider != null)
                 {
@@ -163,7 +164,7 @@ public static class Check2DCollisions
                 for (int i = 0; i < rayCastCount; i++)
                 {
                     Vector2 origin = new Vector2(boxCol.gameObject.transform.position.x + width / 2, (boxCol.gameObject.transform.position.y - height / 2f) + division * i);
-                    hits.Add(Physics2D.Raycast(origin, Vector2.right, distance));
+                    hits.Add(Physics2D.Raycast(origin, Vector2.right, distance, layerMask));
                     Debug.DrawRay(origin, new Vector2(distance, 0), Color.red, 0.05f);
                 }
                 for (int i = 0; i < hits.Count; i++)
@@ -195,7 +196,7 @@ public static class Check2DCollisions
     /// <param name="edgeOffSet">The distance from the edges of the collider.</param>
     /// <param name="distance">Distance to check for collision.</param>
     /// <returns></returns>
-    public static List<GameObject> CheckCollisionLeft(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f)
+    public static List<GameObject> CheckCollisionLeft(BoxCollider2D boxCol, int rayCastCount = 5, float edgeOffSet = 0.05f, float distance = 0.03f, int layerMask = ~0)
     {
         List<GameObject> result = new List<GameObject>();
         if (boxCol)
@@ -209,7 +210,7 @@ public static class Check2DCollisions
             float height = boxCol.size.y - edgeOffSet * 2;
             if (rayCastCount == 1)
             {
-                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x - width / 2, boxCol.gameObject.transform.position.y), Vector2.left, distance);
+                RaycastHit2D hit = Physics2D.Raycast(new Vector2(boxCol.gameObject.transform.position.x - width / 2, boxCol.gameObject.transform.position.y), Vector2.left, distance, layerMask);
                 Debug.DrawRay(new Vector2(boxCol.gameObject.transform.position.x - width / 2, boxCol.gameObject.transform.position.y), new Vector2(-distance, 0), Color.red, 0.05f);
                 if (hit.collider != null)
                 {
@@ -224,7 +225,7 @@ public static class Check2DCollisions
                 for (int i = 0; i < rayCastCount; i++)
                 {
                     Vector2 origin = new Vector2(boxCol.gameObject.transform.position.x - width / 2, (boxCol.gameObject.transform.position.y - height / 2f) + division * i);
-                    hits.Add(Physics2D.Raycast(origin, Vector2.left, distance));
+                    hits.Add(Physics2D.Raycast(origin, Vector2.left, distance, layerMask));
                     Debug.DrawRay(origin, new Vector2(-distance, 0), Color.red, 0.05f);
                 }
                 for (int i = 0; i < hits.Count; i++)
@@ -256,7 +257,7 @@ public static class Check2DCollisions
     ///<param name="width">Width of the square </param>
     ///<param name="height">Height of the square </param>
     ///<param name="linesQuantity">Number of lines to be cast horizontaly and verticaly </param>
-    public static bool CheckSquare2D(Vector2 point, float width = 1f, float height = 1f, int linesQuantity = 10)
+    public static bool CheckSquare2D(Vector2 point, float width = 1f, float height = 1f, int linesQuantity = 10, int layerMask = ~0)
     {
         bool result = false;
         if (linesQuantity <= 0)
@@ -266,22 +267,22 @@ public static class Check2DCollisions
         if (linesQuantity == 1)
         {
             Debug.DrawRay(new Vector2(point.x - width / 2, point.y), Vector2.right, Color.red);
-            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y), Vector2.right, width);
+            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y), Vector2.right, width, layerMask);
             if (hits[0])
                 result = true;
         }
         else
         {
             float lineSpacing = height / (linesQuantity - 1);
-            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y - height / 2), Vector2.right, width);
+            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y - height / 2), Vector2.right, width, layerMask);
             Debug.DrawRay(new Vector2(point.x - width / 2, point.y - height / 2), Vector2.right * width, Color.red);
             for (int i = 1; i <= linesQuantity - 2; i++)
             {
                 Debug.DrawRay(new Vector2(point.x - width / 2, (point.y - height / 2) + lineSpacing * i), Vector2.right * width, Color.red);
-                hits[i] = Physics2D.Raycast(new Vector2(point.x - width / 2, (point.y - height / 2) + lineSpacing * i), Vector2.right, width);
+                hits[i] = Physics2D.Raycast(new Vector2(point.x - width / 2, (point.y - height / 2) + lineSpacing * i), Vector2.right, width, layerMask);
             }
             Debug.DrawRay(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right * width, Color.red);
-            hits[linesQuantity - 1] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right, width);
+            hits[linesQuantity - 1] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right, width, layerMask);
         }
         for (int i = 0; i < linesQuantity; i++)
         {

@@ -6,7 +6,7 @@ public class JoystickController : MonoBehaviour
 {
 
     public SimpleJoystick joystick;
-    public PlayerMovements player;
+    public PlayerMovements playerMovements;
     [Range(0f, 1f)]
     public float deadzoneMinX = 0.25f;
     [Range(0f, 1f)]
@@ -15,9 +15,16 @@ public class JoystickController : MonoBehaviour
     public float deadzoneMinY = 0.25f;
     [Range(0f, 1f)]
     public float deadzoneMaxY = 0.8f;
+
+    private void Awake()
+    {
+        if (!playerMovements)
+            playerMovements = GameObject.FindObjectOfType<PlayerMovements>();
+    }
+
     private void Update()
     {
-        if (player != null)
+        if (playerMovements != null)
         {
             if (joystick != null ? joystick.IsTouching() : false)
             {
@@ -31,9 +38,10 @@ public class JoystickController : MonoBehaviour
             }
             else
             {
-                player.NoInput();
+                playerMovements.NoInput();
             }
         }
+
     }
 
     float CheckDeadzoneX(float value)
@@ -62,48 +70,48 @@ public class JoystickController : MonoBehaviour
     }
     void UpdatePlayerMovement(float moveX, float moveY)
     {
-        if (!player)
+        if (!playerMovements)
             return;
 
-        if (!player.canMove)
+        if (!playerMovements.canMove)
         {
-            player.NoInput();
+            playerMovements.NoInput();
             return;
         }
         if (moveX == 0)
         {
-            player.SetInputLeft(false);
-            player.SetInputRight(false);
+            playerMovements.SetInputLeft(false);
+            playerMovements.SetInputRight(false);
         }
         else if (moveX > 0)
         {
-            player.SetInputLeft(false);
-            player.SetInputRight(true);
+            playerMovements.SetInputLeft(false);
+            playerMovements.SetInputRight(true);
         }
         else
         {
-            player.SetInputLeft(true);
-            player.SetInputRight(false);
+            playerMovements.SetInputLeft(true);
+            playerMovements.SetInputRight(false);
         }
 
         if (moveY == 0)
         {
-            player.SetInputUp(false);
-            player.SetInputDown(false);
+            playerMovements.SetInputUp(false);
+            playerMovements.SetInputDown(false);
         }
         else if (moveY > 0)
         {
-            player.SetInputUp(true);
-            player.SetInputDown(false);
+            playerMovements.SetInputUp(true);
+            playerMovements.SetInputDown(false);
         }
         else
         {
-            player.SetInputUp(false);
-            player.SetInputDown(true);
+            playerMovements.SetInputUp(false);
+            playerMovements.SetInputDown(true);
         }
 
-        player.SetMoveX(moveX);
-        player.SetMoveY(moveY);
+        playerMovements.SetMoveX(moveX);
+        playerMovements.SetMoveY(moveY);
     }
 
 

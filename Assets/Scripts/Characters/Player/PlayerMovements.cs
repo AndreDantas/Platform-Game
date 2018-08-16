@@ -10,10 +10,19 @@ public enum MovementState
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Player))]
+[DisallowMultipleComponent]
 public class PlayerMovements : MonoBehaviour
 {
-    [ReadOnly]
+    [ReadOnly, PropertyOrder(-2)]
     public MovementState movementState = MovementState.Normal;
+
+    [SerializeField, PropertyOrder(-1)]
+    Player player;
+    BoxCollider2D boxCol;
+    Rigidbody2D rb;
+    float rbGravityScale;
+
     [BoxGroup("Wall Climb")]
     public bool EnableWallClimbing = true;
     [BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")]
@@ -27,16 +36,21 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, ReadOnly, BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] bool wallOnLeft;
     [SerializeField, ReadOnly, BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] bool wallOnRight;
 
-    [Range(0f, 100f), BoxGroup("Movement")] public float speed = 4f;
+    [BoxGroup("Movement"), PropertyOrder(0)] public bool canMove { get { return (player?.CanMove() ?? false); } set { player?.SetCanMove(value); } }
+    [BoxGroup("Movement"), Range(0f, 10f)] public float speed = 4f;
     [BoxGroup("Movement"), SerializeField, ReadOnly] float moveX;
     [BoxGroup("Movement"), SerializeField, ReadOnly] float moveY;
     [BoxGroup("Movement")] public float maxVelocityX = 10f;
     [BoxGroup("Movement")] public float maxVelocityY = 20f;
-    [BoxGroup("Movement")] public bool canMove = true;
+    [BoxGroup("Movement")] public float deacceleration = 0.1f;
+
+
     [BoxGroup("Movement"), ReadOnly]
     public bool grounded;
 
-    [BoxGroup("Jump")] public float jumpPower = 20f;
+    [BoxGroup("Jump")] public float groundJumpPower = 20f;
+    [BoxGroup("Jump")] public float airJumpPower = 20f;
+    [BoxGroup("Jump")] public float wallJumpPower = 20f;
     [BoxGroup("Jump")] public float fallMultiplier = 2.5f;
     [BoxGroup("Jump")] public float lowJumpMultiplier = 2f;
     [BoxGroup("Jump"), Range(0, 99)] public int totalAirJump = 1;
@@ -51,9 +65,6 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, ReadOnly, BoxGroup("Inputs")]
     protected bool inputRight, inputLeft, inputUp, inputDown;
 
-    BoxCollider2D boxCol;
-    Rigidbody2D rb;
-    float rbGravityScale;
 
     // -------------------- TO DO ------------------- \\
     /* 
@@ -70,8 +81,16 @@ public class PlayerMovements : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rbGravityScale = rb.gravityScale;
         boxCol = GetComponent<BoxCollider2D>();
+        player = GetComponent<Player>();
 
+    }
 
+    private void OnEnable()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        rbGravityScale = rb.gravityScale;
+        boxCol = GetComponent<BoxCollider2D>();
+        player = GetComponent<Player>();
     }
 
     // Update is called once per frame
@@ -91,7 +110,7 @@ public class PlayerMovements : MonoBehaviour
         grounded = GroundCheck();
 
         // -------------------- TEST ---------------------\\
-        if (canMove)
+        if (player != null ? player.CanMove() : false)
         {
             if (!IsMovingHorizontal()) //Keyboard horizontal Input
             {
@@ -173,11 +192,13 @@ public class PlayerMovements : MonoBehaviour
         switch (movementState)
         {
             case MovementState.Normal:
-                if (canMove && IsMovingHorizontal())
+                if ((player?.CanMove() ?? false) && IsMovingHorizontal())
                     MoveHorizontal(moveX);
+                else
+                    ReduceHorizontalVelocity();
                 break;
             case MovementState.WallClimbing:
-                if (canMove)
+                if (player?.CanMove() ?? false)
                     ClimbWall(moveY);
                 break;
             default:
@@ -212,7 +233,7 @@ public class PlayerMovements : MonoBehaviour
         }
         else
         {
-            moveX = ChangeToValue.ChangeToFloat(moveX, 0f, 0.04f);
+            moveX = ChangeToValue.ChangeToFloat(moveX, 0f, deacceleration);
             return false;
         }
     }
@@ -297,6 +318,12 @@ public class PlayerMovements : MonoBehaviour
         this.holdingJumpButton = pressed;
     }
 
+    protected void ReduceHorizontalVelocity()
+    {
+        if (rb)
+            rb.velocity = new Vector2(ChangeToValue.ChangeToFloat(rb.velocity.x, 0, deacceleration), rb.velocity.y);
+    }
+
     /// <summary>
     /// If there is a horizontal input.
     /// </summary>
@@ -317,7 +344,7 @@ public class PlayerMovements : MonoBehaviour
 
     public bool GroundCheck()
     {
-        List<GameObject> collisions = Check2DCollisions.CheckCollisionDown(boxCol);
+        List<GameObject> collisions = Check2DCollisions.CheckCollisionDown(boxCol, 5, 0.02f);
         foreach (var item in collisions)
         {
             if (LayerMask.LayerToName(item.layer) == "Ground")
@@ -352,20 +379,6 @@ public class PlayerMovements : MonoBehaviour
         rb.isKinematic = false;
     }
 
-    /// <summary>
-    /// Makes player unable to move for X seconds.
-    /// </summary>
-    /// <param name="duration"></param>
-    /// <returns></returns>
-    IEnumerator Immobilize(float duration = 1f)
-    {
-        if (duration < 0)
-            duration = 0;
-        canMove = false;
-        NoInput();
-        yield return new WaitForSeconds(duration);
-        canMove = true;
-    }
 
 
 
@@ -401,16 +414,16 @@ public class PlayerMovements : MonoBehaviour
         if (IsMovingVertical() && !IsMovingHorizontal())
         {
             rb.velocity = new Vector2(0f, 0f);
-            rb.AddForce(new Vector2(jumpPower / 10f * (wallOnLeft ? 1f : -1f), jumpPower * ((inputUp ? 3.5f : -1f) / 5f)), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), wallJumpPower * ((inputUp ? 3.5f : -1f) / 5f)), ForceMode2D.Impulse);
 
         }
         //Only horizontal input
         else if (IsMovingHorizontal() && !IsMovingVertical())
         {
             rb.velocity = new Vector2(0f, 0f);
-            StartCoroutine(Immobilize(0.1f));
-            rb.AddForce(new Vector2(jumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
-                                    jumpPower * 3f / 4f), ForceMode2D.Impulse);
+            StartCoroutine(player.Immobilize(0.1f));
+            rb.AddForce(new Vector2(wallJumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
+                                    wallJumpPower * 3f / 4f), ForceMode2D.Impulse);
 
         }
         //Horizontal and vertical inputs
@@ -419,22 +432,22 @@ public class PlayerMovements : MonoBehaviour
             if (inputUp)
             {
                 rb.velocity = new Vector2(0f, 0f);
-                StartCoroutine(Immobilize(0.1f));
-                rb.AddForce(new Vector2(jumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
-                                        jumpPower * 3f / 4f), ForceMode2D.Impulse);
+                StartCoroutine(player.Immobilize(0.1f));
+                rb.AddForce(new Vector2(wallJumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
+                                        wallJumpPower * 3f / 4f), ForceMode2D.Impulse);
             }
             else
             {
-                StartCoroutine(Immobilize(0.1f));
+                StartCoroutine(player.Immobilize(0.1f));
                 rb.velocity = new Vector2(0f, 0f);
-                rb.AddForce(new Vector2(jumpPower / 10f * (wallOnLeft ? 1f : -1f), -jumpPower / 10f), ForceMode2D.Impulse);
+                rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), -wallJumpPower / 10f), ForceMode2D.Impulse);
             }
         }
         //No inputs
         else
         {
             rb.velocity = new Vector2(0f, 0f);
-            rb.AddForce(new Vector2(jumpPower / 10f * (wallOnLeft ? 1f : -1f), -jumpPower / 10f), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), -wallJumpPower / 10f), ForceMode2D.Impulse);
         }
 
         wallOnLeft = wallOnRight = false;
@@ -515,9 +528,11 @@ public class PlayerMovements : MonoBehaviour
             TransitionToNormal();
             return false;
         }
+        LayerMask ignore = LayerMask.GetMask("Characters", "Hitboxes", "Projectiles");
+        ignore = ~ignore;
         //If there are no walls on either side
-        if (Check2DCollisions.CheckCollisionRight(boxCol, 5, 0.01f, 0.03f).Count == 0 &&
-            Check2DCollisions.CheckCollisionLeft(boxCol, 5, 0.01f, 0.03f).Count == 0)
+        if (Check2DCollisions.CheckCollisionRight(boxCol, 5, 0.01f, 0.03f, ignore).Count == 0 &&
+            Check2DCollisions.CheckCollisionLeft(boxCol, 5, 0.01f, 0.03f, ignore).Count == 0)
         {
             //Go back to normal
             TransitionToNormal();
@@ -581,19 +596,15 @@ public class PlayerMovements : MonoBehaviour
     // ------------------------------------------------------------------------------------\\
     public void Jump()
     {
-        if (rb && canMove)
+        if (rb && (player?.CanMove() ?? false))
         {
             switch (movementState)
             {
                 case MovementState.Normal:
                     if (grounded)
-                    {
                         NormalJump();
-                    }
                     else
-                    {
                         AirJump();
-                    }
                     break;
                 case MovementState.WallClimbing:
                     WallJump();
@@ -612,7 +623,8 @@ public class PlayerMovements : MonoBehaviour
     {
         if (airJumpCount >= totalAirJump)
             return;
-        NormalJump();
+        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        rb.AddForce(new Vector2(0, airJumpPower), ForceMode2D.Impulse);
         airJumpCount++;
     }
 
@@ -620,7 +632,7 @@ public class PlayerMovements : MonoBehaviour
     {
 
         rb.velocity = new Vector2(rb.velocity.x, 0f);
-        rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(0, groundJumpPower), ForceMode2D.Impulse);
     }
 
     void CheckStopJump()

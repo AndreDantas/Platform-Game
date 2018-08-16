@@ -6,11 +6,12 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Enemy : Character
 {
-    protected Rigidbody2D rb;
     protected BoxCollider2D col;
+    public float collisionDamage = 1f;
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
         faction.value = Faction.Type.Enemy;
@@ -41,6 +42,13 @@ public class Enemy : Character
     public override void AfterDamage(float damage)
     {
 
+    }
+
+    public virtual void CollisionDamage(Character c)
+    {
+        c.Damage(attack);
+        c.Knockback((c.transform.position - transform.position).normalized * 50f);
+        c.Stun(0.2f);
     }
 
     public virtual void Movement()

@@ -12,8 +12,9 @@ public class Player : Character
     public float bulletForce = 16f;
     Vector2 movementDirection = Vector2.right;
     // Use this for initialization
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         movements = GetComponent<PlayerMovements>();
         faction.value = Faction.Type.Player;
     }
@@ -22,7 +23,7 @@ public class Player : Character
     void Update()
     {
         GetPlayerDirection();
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetButtonDown("Fire"))
         {
             Shoot();
         }
@@ -70,6 +71,12 @@ public class Player : Character
         }
 
     }
+    public override IEnumerator Immobilize(float duration = 1)
+    {
+        movements?.NoInput();
+        yield return base.Immobilize(duration);
+    }
+
     public override void OnDeath()
     {
 

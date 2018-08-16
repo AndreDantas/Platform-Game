@@ -61,7 +61,7 @@ public abstract class Projectile : MonoBehaviour
         }
 
     }
-    public virtual void Shoot(Vector2 dir, float force, Faction.Type faction, float damage = 10f)
+    public virtual void Shoot(Vector2 dir, float force, Faction.Type faction, float damage = 1f)
     {
         if (rb != null)
         {
@@ -87,21 +87,21 @@ public abstract class Projectile : MonoBehaviour
 
     protected virtual void OnCollisionEnter2D(Collision2D col)
     {
-        var character = col.gameObject.GetComponent<Character>();
+        var hitbox = col.gameObject.GetComponent<Hitbox>();
 
-        if (character && character.faction.value != faction.value)
+        if (hitbox && hitbox.parent?.faction.value != faction.value)
         {
-            character.Damage(damage);
+            hitbox.parent?.Damage(damage);
             Destroy(gameObject);
         }
     }
     protected virtual void OnTriggerEnter2D(Collider2D col)
     {
-        var character = col.gameObject.GetComponent<Character>();
+        var hitbox = col.gameObject.GetComponent<Hitbox>();
 
-        if (character && character.faction.value != faction.value)
+        if (hitbox && hitbox.parent?.faction.value != faction.value)
         {
-            character.Damage(damage);
+            hitbox.parent?.Damage(damage);
             Destroy(gameObject);
         }
     }
