@@ -196,7 +196,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 28480744}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.01, y: -90.1, z: -10}
+  m_LocalPosition: {x: 26.82, y: -92.21, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -845,7 +845,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 889418086}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.000025, y: -90.80001, z: -0.07409738}
+  m_LocalPosition: {x: 24.84, y: -92.55, z: -0.07409738}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1672526156}
@@ -872,7 +872,7 @@ MonoBehaviour:
   canMove: 1
   stunned: 0
   invincible: 0
-  invincibleTime: 10
+  invincibleTime: 2
   bulletPrefab: {fileID: 1520964109749312, guid: f37b411f91f141447b3d123735c87aae,
     type: 2}
   movements: {fileID: 889418088}
@@ -969,7 +969,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 946586652}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.06, y: -93.21, z: -0.14453125}
+  m_LocalPosition: {x: 27.21, y: -93.14, z: -0.14453125}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 297510574}
@@ -1021,8 +1021,9 @@ MonoBehaviour:
   canMove: 1
   stunned: 0
   invincible: 0
-  invincibleTime: 2
+  invincibleTime: 0.3
   collisionDamage: 1
+  collisionKnockbackForce: 8
 --- !u!1 &950536294
 GameObject:
   m_ObjectHideFlags: 0

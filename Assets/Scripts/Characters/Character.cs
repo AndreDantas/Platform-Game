@@ -57,6 +57,8 @@ public abstract class Character : MonoBehaviour
 
     protected virtual void Awake()
     {
+        if (!rb)
+            rb = GetComponent<Rigidbody2D>();
         if (!hitbox)
             hitbox = GetComponentInChildren<Hitbox>();
         if (hitbox)
@@ -84,8 +86,12 @@ public abstract class Character : MonoBehaviour
 
     public virtual void Knockback(Vector2 force)
     {
+        if (!rb)
+            return;
 
-        rb?.AddForce(force, ForceMode2D.Impulse);
+        rb.velocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
+
 
     }
 

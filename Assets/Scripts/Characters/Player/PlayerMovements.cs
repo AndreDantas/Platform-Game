@@ -192,14 +192,19 @@ public class PlayerMovements : MonoBehaviour
         switch (movementState)
         {
             case MovementState.Normal:
-                if ((player?.CanMove() ?? false) && IsMovingHorizontal())
-                    MoveHorizontal(moveX);
-                else
-                    ReduceHorizontalVelocity();
+                if ((player?.CanMove() ?? false))
+                {
+                    if (IsMovingHorizontal())
+                        MoveHorizontal(moveX);
+                    else
+                        ReduceHorizontalVelocity();
+                }
                 break;
             case MovementState.WallClimbing:
                 if (player?.CanMove() ?? false)
                     ClimbWall(moveY);
+                else
+                    TransitionToNormal();
                 break;
             default:
                 break;

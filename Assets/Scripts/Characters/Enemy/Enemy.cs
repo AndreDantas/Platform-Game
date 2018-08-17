@@ -8,7 +8,7 @@ public class Enemy : Character
 {
     protected BoxCollider2D col;
     public float collisionDamage = 1f;
-
+    public float collisionKnockbackForce = 20f;
     protected override void Awake()
     {
         base.Awake();
@@ -25,6 +25,8 @@ public class Enemy : Character
             if (CheckForGround())
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
         }
+
+        Movement();
     }
 
     public override void OnDeath()
@@ -47,8 +49,8 @@ public class Enemy : Character
     public virtual void CollisionDamage(Character c)
     {
         c.Damage(attack);
-        c.Knockback((c.transform.position - transform.position).normalized * 50f);
-        c.Stun(0.2f);
+        c.Knockback(new Vector2(Mathf.Sign(c.gameObject.transform.position.x - transform.position.x), 2) * collisionKnockbackForce);
+        c.Stun(0.5f);
     }
 
     public virtual void Movement()
