@@ -141,12 +141,16 @@ MonoBehaviour:
   ignore:
     serializedVersion: 2
     m_Bits: 2560
-  shootForce: 15
+  speed: 15
   _angle: 0
   angleOffset: 0
+  projectileGravity: 2
   stuck: 0
   animSpeed: 2.5
   stuckDepth: 0.15
+  startFalling:
+    time: 0.3
+    Counter: 0
 --- !u!212 &212553178791277192
 SpriteRenderer:
   m_ObjectHideFlags: 1

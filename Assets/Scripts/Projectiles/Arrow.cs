@@ -9,13 +9,13 @@ public class Arrow : StuckOnHit
     Animator anim;
     public float animSpeed = 1f;
     public float stuckDepth = 0.2f;
+    public Timer startFalling = new Timer(1f);
     protected override void Awake()
     {
         anim = GetComponent<Animator>();
         base.Awake();
         //rb.AddForce(transform.right * 10f, ForceMode2D.Impulse);
     }
-
 
     private void Update()
     {
@@ -27,6 +27,20 @@ public class Arrow : StuckOnHit
                 TurnArrow();
             }
         }
+        if (!startFalling.isFinished)
+        {
+            startFalling.Update();
+        }
+        else if (rb)
+            rb.gravityScale = projectileGravity;
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        startFalling.Reset();
+        if (rb)
+            rb.gravityScale = 0f;
     }
 
     protected override void OnStuck(Collision2D collision)

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class Check2DCollisions
 {
+    #region Side Collisions
     /// <summary>
     /// Checks up collisions on BoxCollider2D.
     /// </summary>
@@ -249,7 +250,9 @@ public static class Check2DCollisions
             return result;
         }
     }
+    #endregion
 
+    #region Extra Checks
     ///<summary>
     ///This function uses raycasts to check a square area in a world position 
     ///</summary>
@@ -257,7 +260,7 @@ public static class Check2DCollisions
     ///<param name="width">Width of the square </param>
     ///<param name="height">Height of the square </param>
     ///<param name="linesQuantity">Number of lines to be cast horizontaly and verticaly </param>
-    public static bool CheckSquare2D(Vector2 point, float width = 1f, float height = 1f, int linesQuantity = 10, int layerMask = ~0)
+    public static bool CheckSquare2D(Vector2 point, float width = 1f, float height = 1f, int linesQuantity = 10, int layerMask = ~0, Directions raycastDirection = Directions.Right)
     {
         bool result = false;
         if (linesQuantity <= 0)
@@ -266,23 +269,91 @@ public static class Check2DCollisions
 
         if (linesQuantity == 1)
         {
-            Debug.DrawRay(new Vector2(point.x - width / 2, point.y), Vector2.right, Color.red);
-            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y), Vector2.right, width, layerMask);
+
+
+            Vector2 startPoint = point;
+            Vector2 direction = Vector2.right;
+            float distance = 1f;
+            switch (raycastDirection)
+            {
+                case Directions.Left:
+                    startPoint = new Vector2(point.x + width / 2f, point.y);
+                    direction = Vector2.left;
+                    distance = width;
+                    break;
+                case Directions.Right:
+                    startPoint = new Vector2(point.x - width / 2f, point.y);
+                    direction = Vector2.right;
+                    distance = width;
+                    break;
+                case Directions.Up:
+                    startPoint = new Vector2(point.x, point.y - height / 2f);
+                    direction = Vector2.up;
+                    distance = height;
+                    break;
+                case Directions.Down:
+                    startPoint = new Vector2(point.x, point.y + height / 2f);
+                    direction = Vector2.down;
+                    distance = height;
+                    break;
+            }
+
+            Debug.DrawRay(startPoint, direction, Color.red);
+            hits[0] = Physics2D.Raycast(startPoint, direction, distance, layerMask);
             if (hits[0])
-                result = true;
+                return true;
         }
         else
         {
-            float lineSpacing = height / (linesQuantity - 1);
-            hits[0] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y - height / 2), Vector2.right, width, layerMask);
-            Debug.DrawRay(new Vector2(point.x - width / 2, point.y - height / 2), Vector2.right * width, Color.red);
-            for (int i = 1; i <= linesQuantity - 2; i++)
+            Vector2 startPoint = point;
+            Vector2 direction = Vector2.right;
+            float lineSpacingX = 0;
+            float lineSpacingY = 0;
+            float distance = 1f;
+
+            switch (raycastDirection)
             {
-                Debug.DrawRay(new Vector2(point.x - width / 2, (point.y - height / 2) + lineSpacing * i), Vector2.right * width, Color.red);
-                hits[i] = Physics2D.Raycast(new Vector2(point.x - width / 2, (point.y - height / 2) + lineSpacing * i), Vector2.right, width, layerMask);
+                case Directions.Left:
+                    startPoint = new Vector2(point.x + width / 2f, point.y - height / 2f);
+                    direction = Vector2.left;
+                    distance = width;
+                    lineSpacingX = 0f;
+                    lineSpacingY = height / (linesQuantity - 1);
+                    break;
+                case Directions.Right:
+                    startPoint = new Vector2(point.x - width / 2f, point.y - height / 2f);
+                    direction = Vector2.right;
+                    distance = width;
+                    lineSpacingX = 0f;
+                    lineSpacingY = height / (linesQuantity - 1);
+                    break;
+                case Directions.Up:
+                    startPoint = new Vector2(point.x - width / 2f, point.y - height / 2f);
+                    direction = Vector2.up;
+                    distance = height;
+                    lineSpacingX = width / (linesQuantity - 1);
+                    lineSpacingY = 0f;
+                    break;
+                case Directions.Down:
+                    startPoint = new Vector2(point.x - width / 2f, point.y + height / 2f);
+                    direction = Vector2.down;
+                    distance = height;
+                    lineSpacingX = width / (linesQuantity - 1);
+                    lineSpacingY = 0f;
+                    break;
+
             }
-            Debug.DrawRay(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right * width, Color.red);
-            hits[linesQuantity - 1] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right, width, layerMask);
+            hits[0] = Physics2D.Raycast(startPoint, direction, distance, layerMask);
+            Debug.DrawRay(startPoint, direction * distance, Color.red);
+
+            for (int i = 1; i <= linesQuantity - 1; i++)
+            {
+                Debug.DrawRay(new Vector2(startPoint.x + lineSpacingX * i, startPoint.y + lineSpacingY * i), direction * distance, Color.red);
+                hits[i] = Physics2D.Raycast(new Vector2(startPoint.x + lineSpacingX * i, startPoint.y + lineSpacingY * i), direction, distance, layerMask);
+            }
+
+            //Debug.DrawRay(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right * width, Color.red);
+            // hits[linesQuantity - 1] = Physics2D.Raycast(new Vector2(point.x - width / 2, point.y + height / 2), Vector2.right, width, layerMask);
         }
         for (int i = 0; i < linesQuantity; i++)
         {
@@ -295,4 +366,24 @@ public static class Check2DCollisions
         }
         return result;
     }
+
+    public static bool CheckForFallLeft(BoxCollider2D col, float checkDistance = 0.1f, float checkOffset = 0.05f, int layerMask = ~0)
+    {
+        if (!col)
+            return false;
+        Vector2 lowerLeft = col.bounds.min - new Vector3(Mathf.Abs(checkOffset), 0f);
+        Debug.DrawRay(lowerLeft, Vector3.down * checkDistance, Color.blue);
+        return !Physics2D.Raycast(lowerLeft, Vector3.down, checkDistance);
+
+    }
+    public static bool CheckForFallRight(BoxCollider2D col, float checkDistance = 0.1f, float checkOffset = 0.05f, int layerMask = ~0)
+    {
+        if (!col)
+            return false;
+        Vector2 lowerRight = new Vector3(col.bounds.max.x, col.bounds.min.y) + new Vector3(Mathf.Abs(checkOffset), 0f);
+        Debug.DrawRay(lowerRight, Vector3.down * checkDistance, Color.blue);
+        return !Physics2D.Raycast(lowerRight, Vector3.down, checkDistance);
+
+    }
+    #endregion
 }

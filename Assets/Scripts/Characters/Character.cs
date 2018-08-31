@@ -6,8 +6,8 @@ using Sirenix.OdinInspector;
 [RequireComponent(typeof(Rigidbody2D))]
 public abstract class Character : MonoBehaviour
 {
-    public Faction faction;
-    public Hitbox hitbox;
+    public static string[] IgnoreLayers = { "Characters", "Hitboxes", "Projectiles", "Ignore" };
+
     protected Rigidbody2D rb;
     [SerializeField, HideInInspector]
     protected float _maxHealth = 10f;
@@ -49,20 +49,17 @@ public abstract class Character : MonoBehaviour
     public float attack = 1f;
     [SerializeField]
     protected bool canMove = true;
-    [SerializeField, ReadOnly]
-    protected bool stunned = false;
-    [SerializeField, ReadOnly]
-    protected bool invincible = false;
-    public float invincibleTime = 2f;
+    [SerializeField]
+    protected bool grounded = false;
 
+    public Timer invincibleTime = new Timer(2f);
+    [ShowInInspector, ReadOnly]
+    public bool invincible { get; private set; }
     protected virtual void Awake()
     {
         if (!rb)
             rb = GetComponent<Rigidbody2D>();
-        if (!hitbox)
-            hitbox = GetComponentInChildren<Hitbox>();
-        if (hitbox)
-            hitbox.parent = this;
+
     }
 
     public virtual void Damage(float damage)
@@ -81,7 +78,27 @@ public abstract class Character : MonoBehaviour
         }
 
         AfterDamage(damage); // After damage is dealt.
-        StartCoroutine(Invincible());
+        StartCoroutine(Invincible(invincibleTime.Time));
+    }
+    public virtual void Damage(float damage, Vector2 force, float stunTime)
+    {
+        if (invincible)
+            return;
+        BeforeDamage(damage); // Before damage is dealt.
+
+        damage = ModifyDamage(damage); // Change damage based on effects.
+
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            OnDeath(); // Death of character.
+        }
+
+        AfterDamage(damage); // After damage is dealt.
+        StartCoroutine(Invincible(invincibleTime.Time + stunTime));
+        Knockback(force);
+        Stun(stunTime);
     }
 
     public virtual void Knockback(Vector2 force)
@@ -100,17 +117,20 @@ public abstract class Character : MonoBehaviour
         StartCoroutine(Immobilize(duration));
     }
 
-    public virtual IEnumerator Invincible()
+    public virtual IEnumerator Invincible(float time)
     {
         if (invincible)
             yield break;
         invincible = true;
-        if (hitbox)
-            hitbox.hitArea.enabled = false;
-        yield return new WaitForSeconds(invincibleTime);
+
+        while (!invincibleTime.isFinished)
+        {
+            invincibleTime.Update();
+            yield return null;
+        }
         invincible = false;
-        if (hitbox)
-            hitbox.hitArea.enabled = true;
+
+        invincibleTime.Reset();
     }
 
     /// <summary>
@@ -154,4 +174,14 @@ public abstract class Character : MonoBehaviour
 
     }
 
+    public bool IsGrounded()
+    {
+        return grounded;
+    }
+
+    public abstract Collider2D GetCollider();
+    public Rigidbody2D GetRigidbody2D()
+    {
+        return rb;
+    }
 }

@@ -4,17 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class Player : Character
+public class Player : FightCharacter
 {
     [InlineEditor(InlineEditorModes.LargePreview)]
     public GameObject bulletPrefab;
     public PlayerMovements movements;
     public float bulletForce = 16f;
+    protected BoxCollider2D col;
     Vector2 movementDirection = Vector2.right;
     // Use this for initialization
     protected override void Awake()
     {
         base.Awake();
+        col = GetComponent<BoxCollider2D>();
         movements = GetComponent<PlayerMovements>();
         faction.value = Faction.Type.Player;
     }
@@ -92,5 +94,10 @@ public class Player : Character
     public override void BeforeDamage(float damage)
     {
 
+    }
+
+    public override Collider2D GetCollider()
+    {
+        return col;
     }
 }

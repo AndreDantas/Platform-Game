@@ -51,7 +51,7 @@ public abstract class StuckOnHit : Projectile
         base.OnCollisionEnter2D(col);
     }
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         this.transform.parent = null;
         stuck = false;

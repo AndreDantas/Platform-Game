@@ -12,7 +12,11 @@ public class Shuriken : StuckOnHit
         base.Awake();
         osc = GetComponent<Oscillator>();
     }
-
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        projectileGravity = 0f;
+    }
 
     protected override void OnStuck(Collision2D collision)
     {

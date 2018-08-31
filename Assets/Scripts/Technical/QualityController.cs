@@ -9,7 +9,7 @@ public class QualityController : MonoBehaviour
     void Awake()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 300;
+        Application.targetFrameRate = 60;
         QualitySettings.antiAliasing = 0;
     }
 

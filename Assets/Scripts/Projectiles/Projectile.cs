@@ -9,7 +9,7 @@ public abstract class Projectile : MonoBehaviour
     [HideInInspector]
     public Rigidbody2D rb;
     public LayerMask ignore;
-    public float shootForce = 15f;
+    public float speed = 15f;
     [SerializeField]
     protected float _angle;
     public float angle
@@ -26,6 +26,7 @@ public abstract class Projectile : MonoBehaviour
         }
     }
     public float angleOffset = 0f;
+    public float projectileGravity = 1f;
     // Use this for initialization
     protected virtual void Awake()
     {
@@ -38,7 +39,7 @@ public abstract class Projectile : MonoBehaviour
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
-            rb.AddForce(dir.normalized * shootForce, ForceMode2D.Impulse);
+            rb.AddForce(dir.normalized * speed, ForceMode2D.Impulse);
         }
 
     }

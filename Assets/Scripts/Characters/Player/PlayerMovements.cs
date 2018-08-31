@@ -28,9 +28,9 @@ public class PlayerMovements : MonoBehaviour
     [BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")]
     public bool ResetAirJumps = false;
 
-    [Range(0f, 100f), BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] public float wallClimbSpeed = 2f;
-    [Range(0f, 100f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallSlidingSpeed = 0f;
-    [Range(0f, 2f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallReleaseTime = 0.2f;
+    [Range(0f, 20f), BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] public float wallClimbSpeed = 2f;
+    [Range(0f, 20f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallSlidingSpeed = 0f;
+    [Range(-1f, 2f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallReleaseTime = 0.2f;
     protected float wallReleaseCount = 0f;
 
     [SerializeField, ReadOnly, BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] bool wallOnLeft;
@@ -70,7 +70,7 @@ public class PlayerMovements : MonoBehaviour
     /* 
      * Create enemy AI
      * Make enemy Movement
-     * 
+     * fix wall climb ledge bug 
      * 
     */
     // ----------------------------------------------- \\
@@ -102,6 +102,7 @@ public class PlayerMovements : MonoBehaviour
     private void FixedUpdate()
     {
         ExecuteMovement();
+
     }
 
     protected void PrepareMovement()
@@ -109,7 +110,7 @@ public class PlayerMovements : MonoBehaviour
         //Checking if the player is on the ground
         grounded = GroundCheck();
 
-        // -------------------- TEST ---------------------\\
+        //-------------------- TEST ---------------------\\
         if (player != null ? player.CanMove() : false)
         {
             if (!IsMovingHorizontal()) //Keyboard horizontal Input
@@ -156,13 +157,15 @@ public class PlayerMovements : MonoBehaviour
         }
         // ---------------------------------------------- \\ 
 
+        bool touchingWall = CheckForWall(1) || CheckForWall(-1);
+
         switch (movementState)
         {
             case MovementState.Normal:
 
                 if (CheckMovementHorizontal())
                 {
-                    if (CheckForWall(Mathf.Sign(moveX)))
+                    if (touchingWall)
                     {
                         rb.velocity = new Vector2(0, rb.velocity.y);
                         if (TransitionToWallclimb())
@@ -184,6 +187,17 @@ public class PlayerMovements : MonoBehaviour
                 break;
             default:
                 break;
+        }
+
+        if (IsMovingHorizontal() || movementState == MovementState.WallClimbing)
+        {
+            if (touchingWall)
+            {
+                if (CheckForClimbableLedge(wallOnRight ? true : false))
+                    ClimbLedge(wallOnRight ? true : false);
+            }
+
+
         }
     }
 
@@ -312,6 +326,11 @@ public class PlayerMovements : MonoBehaviour
         return inputUp;
     }
 
+    public bool HasInput()
+    {
+        return inputLeft || inputRight || inputDown || inputUp;
+    }
+
     public void NoInput()
     {
 
@@ -366,13 +385,14 @@ public class PlayerMovements : MonoBehaviour
     /// <param name="endPos">Position to move the player</param>
     /// <param name="time">Time to move</param>
     /// <returns></returns>
-    IEnumerator MovePlayer(Vector2 endPos, float time)
+    IEnumerator MovePlayer(Vector2 endPos, float time, bool canMove = true)
     {
         if (time < 0f)
             time = 0f;
         float i = 0.0f;
         float rate = 1.0f / time;
         Vector3 startPos = transform.position;
+        this.canMove = canMove;
         rb.isKinematic = true;
         while (i < 1.0)
         {
@@ -381,6 +401,7 @@ public class PlayerMovements : MonoBehaviour
             yield return null;
         }
         rb.velocity = Vector2.zero;
+        this.canMove = true;
         rb.isKinematic = false;
     }
 
@@ -408,68 +429,7 @@ public class PlayerMovements : MonoBehaviour
     // ------------------------------------------------------------------------------------\\
 
     // -------------------------------- Wallclimb Movement ----------------------------------\\
-    public void WallJump()
-    {
 
-        if (movementState != MovementState.WallClimbing || !rb)
-            return;
-
-        TransitionToNormal();
-        //Only vertical input
-        if (IsMovingVertical() && !IsMovingHorizontal())
-        {
-            rb.velocity = new Vector2(0f, 0f);
-            rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), wallJumpPower * ((inputUp ? 3.5f : -1f) / 5f)), ForceMode2D.Impulse);
-
-        }
-        //Only horizontal input
-        else if (IsMovingHorizontal() && !IsMovingVertical())
-        {
-            rb.velocity = new Vector2(0f, 0f);
-            StartCoroutine(player.Immobilize(0.1f));
-            rb.AddForce(new Vector2(wallJumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
-                                    wallJumpPower * 3f / 4f), ForceMode2D.Impulse);
-
-        }
-        //Horizontal and vertical inputs
-        else if (IsMovingHorizontal() && IsMovingVertical())
-        {
-            if (inputUp)
-            {
-                rb.velocity = new Vector2(0f, 0f);
-                StartCoroutine(player.Immobilize(0.1f));
-                rb.AddForce(new Vector2(wallJumpPower * (inputRight ? wallOnLeft ? 1f / 3f : -2f / 5f : wallOnRight ? -1f / 3f : 2f / 5f),
-                                        wallJumpPower * 3f / 4f), ForceMode2D.Impulse);
-            }
-            else
-            {
-                StartCoroutine(player.Immobilize(0.1f));
-                rb.velocity = new Vector2(0f, 0f);
-                rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), -wallJumpPower / 10f), ForceMode2D.Impulse);
-            }
-        }
-        //No inputs
-        else
-        {
-            rb.velocity = new Vector2(0f, 0f);
-            rb.AddForce(new Vector2(wallJumpPower / 10f * (wallOnLeft ? 1f : -1f), -wallJumpPower / 10f), ForceMode2D.Impulse);
-        }
-
-        wallOnLeft = wallOnRight = false;
-    }
-    public void ClimbWall(float direction)
-    {
-        if (!EnableWallClimbing)
-        {
-            TransitionToNormal();
-            return;
-        }
-        if (rb)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, wallClimbSpeed * Time.deltaTime * 100f * direction);
-            rb.AddForce(new Vector2(0, -wallSlidingSpeed * 10f));
-        }
-    }
     bool TransitionToWallclimb()
     {
         //Debug.Log("Transition wallclimb");
@@ -483,6 +443,72 @@ public class PlayerMovements : MonoBehaviour
         moveY = 0f;
 
         return true;
+    }
+
+    void WallJump()
+    {
+        if (movementState != MovementState.WallClimbing || !rb)
+            return;
+
+        TransitionToNormal();
+        if (grounded)
+        {
+            rb.velocity = new Vector2(0f, 0f);
+            StartCoroutine(player.Immobilize(0.2f));
+            rb.AddForce(new Vector2(0, groundJumpPower), ForceMode2D.Impulse);
+            return;
+        }
+
+
+        if (Mathf.Abs(moveX) >= 0.7f)
+        {
+            rb.velocity = new Vector2(0f, 0f);
+
+
+            var force = Vector2.zero;
+            if (wallOnLeft)
+            {
+                if (inputRight)
+                {
+                    force = new Vector2(wallJumpPower * 0.8f, wallJumpPower * 0.6f); StartCoroutine(player.Immobilize(0.25f));
+                }
+                else
+                {
+                    force = new Vector2(wallJumpPower / 3f, wallJumpPower * 0.9f); StartCoroutine(player.Immobilize(0.15f));
+                }
+            }
+            else
+            {
+                if (inputLeft)
+                {
+                    force = new Vector2(-wallJumpPower * 0.8f, wallJumpPower * 0.6f); StartCoroutine(player.Immobilize(0.25f));
+                }
+                else
+                {
+                    force = new Vector2(-wallJumpPower / 3f, wallJumpPower * 0.9f); StartCoroutine(player.Immobilize(0.15f));
+                }
+            }
+            rb.AddForce(force, ForceMode2D.Impulse);
+        }
+        else
+        {
+            rb.velocity = new Vector2(0f, 0f);
+            StartCoroutine(player.Immobilize(0.1f));
+            rb.AddForce(new Vector2(wallJumpPower / 5f * (wallOnLeft ? 1f : -1f), wallJumpPower / 8f * (inputUp ? 1f : -1f)), ForceMode2D.Impulse);
+        }
+    }
+    void ClimbWall(float direction)
+    {
+        if (!EnableWallClimbing)
+        {
+            TransitionToNormal();
+            return;
+        }
+        if (rb)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, wallClimbSpeed * Time.deltaTime * 100f * direction);
+            rb.AddForce(new Vector2(0, -wallSlidingSpeed * 10f));
+        }
     }
 
     /// <summary>
@@ -533,7 +559,7 @@ public class PlayerMovements : MonoBehaviour
             TransitionToNormal();
             return false;
         }
-        LayerMask ignore = LayerMask.GetMask("Characters", "Hitboxes", "Projectiles");
+        LayerMask ignore = LayerMask.GetMask(Character.IgnoreLayers);
         ignore = ~ignore;
         //If there are no walls on either side
         if (Check2DCollisions.CheckCollisionRight(boxCol, 5, 0.01f, 0.03f, ignore).Count == 0 &&
@@ -564,13 +590,46 @@ public class PlayerMovements : MonoBehaviour
 
     }
 
+    bool CheckForClimbableLedge(bool onRight = true)
+    {
+        float width = (boxCol?.size.x ?? 1f) * (onRight ? 1 : -1);
+        float height = boxCol?.size.y ?? 1f;
+
+        Vector2 pos = new Vector2(transform.position.x + width * 0.95f, transform.position.y + height / 2f);
+        return !Check2DCollisions.CheckSquare2D(pos, Mathf.Abs(width), height, 10, ~LayerMask.GetMask(Character.IgnoreLayers), onRight ? Directions.Right : Directions.Left);
+
+
+    }
+
+    void ClimbLedge(bool onRight = true)
+    {
+
+
+        float width = (boxCol?.size.x ?? 1f) * (onRight ? 1 : -1);
+        float height = boxCol?.size.y ?? 1f;
+
+        Vector2 checkPoint = new Vector2(transform.position.x + width, transform.position.y);
+        var hit = Physics2D.Raycast(checkPoint, Vector2.down, height / 2f, layerMask: ~LayerMask.GetMask(Character.IgnoreLayers));
+
+        float moveY = height / 2f - (hit ? hit.distance : 0f);
+
+        Vector2 movePoint = new Vector2(transform.position.x + width, transform.position.y + moveY);
+
+        TransitionToNormal();
+
+        StartCoroutine(MovePlayer(movePoint, 0.2f, false));
+    }
+
     bool CheckForRelease()
     {
+
         if (!EnableWallClimbing || movementState != MovementState.WallClimbing)
         {
             wallReleaseCount = 0f;
             return true;
         }
+        if (wallReleaseTime < 0)
+            return false;
         if ((inputLeft && wallOnRight) || (inputRight && wallOnLeft))
         {
             if (wallReleaseCount >= wallReleaseTime)

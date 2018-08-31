@@ -142,13 +142,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa9f4fa9d06401d418b3bd8817d4cbf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  faction:
+    value: 0
+  damage: 1
   rb: {fileID: 50490476573681440}
   ignore:
     serializedVersion: 2
     m_Bits: 2560
-  shootForce: 20
+  speed: 15
   _angle: 0
   angleOffset: 0
+  projectileGravity: 0
   stuck: 0
 --- !u!212 &212090251160917062
 SpriteRenderer:

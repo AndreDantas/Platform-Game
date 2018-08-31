@@ -10,7 +10,7 @@ public static class ChangeToValue
             return changeTo;
         increment = Mathf.Clamp(increment, 0.00001f, 999999f);
         minDistance = Mathf.Clamp(minDistance, 0.00001f, 999999f);
-        if ((value <= minDistance && value >= changeTo) || (value >= -minDistance && value <= changeTo))
+        if (Mathf.Abs(changeTo - value) <= minDistance)
             return changeTo;
         else
         {

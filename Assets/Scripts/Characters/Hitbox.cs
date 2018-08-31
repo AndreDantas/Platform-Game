@@ -8,7 +8,7 @@ using Sirenix.OdinInspector;
 public class Hitbox : MonoBehaviour
 {
 
-    public Character parent;
+    public FightCharacter parent;
     public Collider2D hitArea;
 
     protected virtual void OnEnable()
@@ -19,7 +19,7 @@ public class Hitbox : MonoBehaviour
             hitArea.isTrigger = true;
         gameObject.layer = LayerMask.NameToLayer("Hitboxes");
         if (!parent)
-            parent = GetComponentInParent<Character>();
+            parent = GetComponentInParent<FightCharacter>();
         if (parent)
             name = parent.name + "'s hitbox";
     }

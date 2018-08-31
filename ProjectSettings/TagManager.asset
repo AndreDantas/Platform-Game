@@ -19,7 +19,7 @@ TagManager:
   - 
   - Projectiles
   - Hitboxes
-  - 
+  - Ignore
   - 
   - 
   - 
@@ -41,4 +41,19 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 1559287237
+    locked: 0
+  - name: Projectiles
+    uniqueID: 100901751
+    locked: 0
+  - name: Characters
+    uniqueID: 4032303801
+    locked: 0
+  - name: Enviroment
+    uniqueID: 1742140399
+    locked: 0
+  - name: Foreground
+    uniqueID: 1991263909
     locked: 0
