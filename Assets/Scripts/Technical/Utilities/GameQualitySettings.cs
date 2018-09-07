@@ -17,6 +17,6 @@ public class GameQualitySettings : MonoBehaviour
         instance = this;
 
         Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 0;
+        QualitySettings.vSyncCount = 1;
     }
 }

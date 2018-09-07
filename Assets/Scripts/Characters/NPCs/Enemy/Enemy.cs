@@ -79,9 +79,7 @@ public class Enemy : FightCharacter
 
     public virtual void CollisionDamage(Character c)
     {
-        c.Damage(attack);
-        c.Knockback(new Vector2(Mathf.Sign(c.gameObject.transform.position.x - transform.position.x), 2) * collisionKnockbackForce);
-        c.Stun(0.5f);
+        c.Damage(attack, new Vector2(Mathf.Sign(c.gameObject.transform.position.x - transform.position.x), 2) * collisionKnockbackForce, 0.5f);
     }
 
     public virtual void Movement()

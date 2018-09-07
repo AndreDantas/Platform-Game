@@ -11,4 +11,8 @@ public class Faction
 
     public Type value;
 
+    public Faction(Type value)
+    {
+        this.value = value;
+    }
 }

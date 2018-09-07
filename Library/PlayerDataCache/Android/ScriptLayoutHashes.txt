@@ -1,12 +1,12 @@
 Android
 PlayerPath?
-D:/Andre Dantas/Unity/Platform Game/Builds/PlatformerGame V0.1.1.apk
+D:/Andre Dantas/Unity/Platform Game/Builds/PlatformerGame V0.1.2.apk
 SceneListBegin?
-Assets/Scenes/MainScene.unity
+Assets/Scenes/Test.unity
 SceneListEnd?
 486a060cfa254a30ff0160971a9a8a9f Sirenix.Serialization.Config.dll:Sirenix.Serialization.GlobalSerializationConfig
 c422dd62785a6d0afa870fbd111886ce Unity.TextMeshPro.dll:TMPro.TMP_SelectionCaret
-1a1db4b2022970bc1c42c2cca987140f Assembly-CSharp.dll:.JoystickController
+889cd62becccb4c51ae8872dc3ce3b09 Assembly-CSharp.dll:.JoystickController
 7b803eb2910e9b4cd5e521ae07b9f7d6 Unity.TextMeshPro.dll:TMPro.TMP_Dropdown
 486cd95c82d8305219c352c06b776e1f UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 9e61f3535f3c55760a1cedfbd114f4af UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
@@ -98,11 +98,13 @@ a44114bd4fa541174f78b4bb92bacb48 UnityEngine.UI.dll:UnityEngine.EventSystems.Sta
 e90403eeda069970e0b9de1533de13a6 UnityEngine.UI.dll:UnityEngine.UI.ToggleGroup
 2d58ca16854b99daea8c45e9c0f367b7 UnityEngine.UI.dll:UnityEngine.EventSystems.TouchInputModule
 16da51d1b62ef6d4ee1849350434023b UnityEngine.UI.dll:UnityEngine.UI.VerticalLayoutGroup
+65b1140c054f68c1d131ba694a36dc23 Assembly-CSharp.dll:UnityEngine.Tilemaps.RandomTile
 109ca2c01d48b39c29df869bbd900f15 Assembly-CSharp-firstpass.dll:UnityStandardAssets.Cameras.AutoCam
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.ShowFps
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.BringToFront
+a619a8c3b1b23e696831a41db2f32a30 Assembly-CSharp.dll:UnityEngine.RuleTile
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.GameQualitySettings
-b06b2c8eb70e6884bbf5c49d85e8796e Assembly-CSharp.dll:.PlayerMovements
+e98227faa5c99e2a5fbc453e08a30b7c Assembly-CSharp.dll:.PlayerMovements
 486cd95c82d8305219c352c06b776e1f Sirenix.Utilities.dll:Sirenix.Utilities.ProjectPathFinder
 486cd95c82d8305219c352c06b776e1f UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 9e61f3535f3c55760a1cedfbd114f4af UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
@@ -116,8 +118,9 @@ c7dd12c15208b0447e101f80038706df UnityEngine.Timeline.dll:UnityEngine.Timeline.A
 0ddb2c46096a1e59e0dce07886ce4769 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 0ddb2c46096a1e59e0dce07886ce4769 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 64f3a13c1277a7f1324321d93d0ec13b UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-41249aa453afe624b9bcff8971eb2a47 Assembly-CSharp.dll:.Player
+d967106b8a5ac90a963a21336f457c92 Assembly-CSharp.dll:.Player
 66b3109aa5921cf800bec17926c6adba Unity.TextMeshPro.dll:TMPro.TMP_SubMeshUI
+66484d06c5f19c41c05ca68836821a2e Unity.2D.PixelPerfect.dll:UnityEngine.U2D.PixelPerfectCamera
 201273fb4f889724fb090164b7d6c657 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 486cd95c82d8305219c352c06b776e1f UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
 0f27c39183b9eb95eba0a228bea28273 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkDiscovery
@@ -153,14 +156,17 @@ dfd33ff9ae3ce8d7ca1f22b475ec2387 UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 9842f8fd79f8c88d47311c8d1af89b4a Assembly-CSharp-firstpass.dll:CnControls.DpadAxis
 ce3435b27703792653e1193237500b4d Assembly-CSharp.dll:.DeactivateObjectOffCamera
 714ddae5f399d375e61208c697cb8515 Assembly-CSharp-firstpass.dll:Examples.Scenes.TouchpadCamera.RotateCamera
+762cc5c1b35e1c889059192f4b978a4b Assembly-CSharp.dll:UnityEngine.Tilemaps.AnimatedTile
 c7092b0e167d5ec4c0bf92110ebaf239 Assembly-CSharp.dll:.ImageRandomColorChange
 502bd6834413bde615021a75226dbdcf Assembly-CSharp.dll:Tiled2Unity.TiledMap
 f16835701e71dd5d6fb1fed4b7aff1d8 Unity.TextMeshPro.dll:TMPro.TMP_Asset
 099024fec6e6b3e93f970458537f0b7e Assembly-CSharp.dll:.Scroller
+5f02c4cad2de63ed196125bb48c404fb Assembly-CSharp.dll:.ObjectBounds
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.PixelSnap
 d681dd2abe334e35832c5e4dfbb139ac Assembly-CSharp.dll:.CameraBounds
 486cd95c82d8305219c352c06b776e1f Unity.TextMeshPro.dll:TMPro.TMP_SpriteAnimator
 069fe7524315c011b26ad0f65727024b Assembly-CSharp-firstpass.dll:.ScreenshotCompanion
+f5ece19966a893bd3def5b7aaf85514d Assembly-CSharp.dll:UnityEngine.Tilemaps.PipelineTile
 4b48d3ab43b45d2faa289b054ed9a43a Assembly-CSharp-firstpass.dll:CnControls.SimpleJoystick
 eaf0bcdb10d442a4029d615f41d09957 Unity.TextMeshPro.dll:TMPro.TextContainer
 428231cfe938cdca9e9df4a65add6db7 Assembly-CSharp.dll:Tiled2Unity.TileAnimator
@@ -241,6 +247,7 @@ e1ea12ca952c81d81a9a21fdf34446ed UnityEngine.HoloLens.dll:UnityEngine.EventSyste
 98d69a140ec0084cde3b6a5e09aea295 UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 dfd33ff9ae3ce8d7ca1f22b475ec2387 UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 388ec1cfe4d1ad0e489cb981b67b6a6a Assembly-CSharp.dll:Tiled2Unity.TileLayer
+b4a8b3ed85775d50ba42bbbaa1fca507 Assembly-CSharp.dll:UnityEngine.Tilemaps.GridInformation
 11a89ebdd1e3161021b85ef0e63b6b4b Assembly-CSharp-firstpass.dll:.ThidPersonExampleController
 5cbab06d4665e1f12ac7d37549ff3795 Unity.TextMeshPro.dll:TMPro.TextMeshProUGUI
 1ae7d5219750b656fadd8e4142edc9bf Assembly-CSharp-firstpass.dll:CnControls.SensitiveJoystick
@@ -249,7 +256,9 @@ dfd33ff9ae3ce8d7ca1f22b475ec2387 UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 0a006f3734181ba8b26758f0866152c0 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:Tiled2Unity.SortingLayerExposed
 486cd95c82d8305219c352c06b776e1f Assembly-CSharp.dll:.GameObjectPoolController
+8c042738ed90ace6daeecbbbcece8ee6 Assembly-CSharp.dll:.TintTextureGenerator
 e7243432dd281e72011751efc287823c Assembly-CSharp-firstpass.dll:UnityStandardAssets._2D.Camera2DFollow
+f5ece19966a893bd3def5b7aaf85514d Assembly-CSharp.dll:UnityEngine.Tilemaps.TerrainTile
 aaf3fc6261493d2e43f8e694b6fedc17 Assembly-CSharp.dll:Tiled2Unity.SpriteDepthInMap
 4896587734db8e146a140fc124258b0f Assembly-CSharp.dll:.Enemy
 12c940366a3116cb4e7c7e13ad4c1ee6 Assembly-CSharp.dll:Tiled2Unity.ObjectLayer
@@ -275,3 +284,5 @@ a16412df65eaa734e45e302b215331b4 Assembly-CSharp.dll:.ProceduralMeshRenderer
 db0b0860fd2227147d01ef57a73d2869 Assembly-CSharp.dll:.Poolable
 a608efbc3b29ec8f9e3b35f2ae5d331c Assembly-CSharp-firstpass.dll:UnityStandardAssets.Copy._2D.PlatformerCharacter2D
 6ad71f41670cd5e237ae4eddbeeb9ea4 Assembly-CSharp-firstpass.dll:Sirenix.OdinInspector.Demos.RPGEditor.Character
+1e9d181fe412b3eef6c458a2d2188875 Assembly-CSharp.dll:.SpikeTrap
+aeccbe8f9e79b53504746b3270433396 Assembly-CSharp.dll:.Trap

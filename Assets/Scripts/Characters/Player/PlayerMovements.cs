@@ -29,21 +29,26 @@ public class PlayerMovements : MonoBehaviour
     public bool ResetAirJumps = false;
 
     [Range(0f, 20f), BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] public float wallClimbSpeed = 2f;
-    [Range(0f, 20f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallSlidingSpeed = 0f;
-    [Range(-1f, 2f), BoxGroup("Wall Climb"), MinValue(0), ShowIf("EnableWallClimbing")] public float wallReleaseTime = 0.2f;
+    [Range(0f, 20f), BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] public float wallSlidingSpeed = 0f;
+    [Range(-1f, 2f), BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] public float wallReleaseTime = 0.2f;
     protected float wallReleaseCount = 0f;
 
     [SerializeField, ReadOnly, BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] bool wallOnLeft;
     [SerializeField, ReadOnly, BoxGroup("Wall Climb"), ShowIf("EnableWallClimbing")] bool wallOnRight;
 
+    [BoxGroup("Ledge Climb")]
+    public bool EnableLedgeClimbing = true;
+    [BoxGroup("Ledge Climb"), Range(0f, 1f), ShowIf("EnableLedgeClimbing")] public float ledgeClimbTime = 0.2f;
+    [BoxGroup("Ledge Climb"), Range(0f, 100f), ShowIf("EnableLedgeClimbing")] public float minimumGroundDistance = 1.5f;
+
     [BoxGroup("Movement"), PropertyOrder(0)] public bool canMove { get { return (player?.CanMove() ?? false); } set { player?.SetCanMove(value); } }
     [BoxGroup("Movement"), Range(0f, 10f)] public float speed = 4f;
-    [BoxGroup("Movement"), SerializeField, ReadOnly] float moveX;
-    [BoxGroup("Movement"), SerializeField, ReadOnly] float moveY;
     [BoxGroup("Movement")] public float maxVelocityX = 10f;
     [BoxGroup("Movement")] public float maxVelocityY = 20f;
-    [BoxGroup("Movement")] public float deacceleration = 0.1f;
-
+    bool inputRight { get { return (player?.InputRight() ?? false); } }
+    bool inputLeft { get { return (player?.InputLeft() ?? false); } }
+    bool inputUp { get { return (player?.InputUp() ?? false); } }
+    bool inputDown { get { return (player?.InputDown() ?? false); } }
 
     [BoxGroup("Movement"), ReadOnly]
     public bool grounded;
@@ -59,18 +64,12 @@ public class PlayerMovements : MonoBehaviour
     protected bool holdingJumpButton;
 
 
-    /// <summary>
-    /// Player input reference
-    /// </summary>
-    [SerializeField, ReadOnly, BoxGroup("Inputs")]
-    protected bool inputRight, inputLeft, inputUp, inputDown;
 
 
     // -------------------- TO DO ------------------- \\
     /* 
      * Create enemy AI
      * Make enemy Movement
-     * fix wall climb ledge bug 
      * 
     */
     // ----------------------------------------------- \\
@@ -107,55 +106,9 @@ public class PlayerMovements : MonoBehaviour
 
     protected void PrepareMovement()
     {
+
         //Checking if the player is on the ground
         grounded = GroundCheck();
-
-        //-------------------- TEST ---------------------\\
-        if (player != null ? player.CanMove() : false)
-        {
-            if (!IsMovingHorizontal()) //Keyboard horizontal Input
-            {
-                moveX = Input.GetAxisRaw("Horizontal");
-                if (moveX != 0)
-                {
-                    inputRight = moveX > 0;
-                    inputLeft = moveX < 0;
-
-                }
-                else
-                {
-                    inputRight = inputLeft = false;
-                }
-            }
-            if (!IsMovingVertical()) //Keyboard vertical Input
-            {
-                moveY = Input.GetAxisRaw("Vertical");
-                if (moveY != 0)
-                {
-                    inputUp = moveY > 0;
-                    inputDown = moveY < 0;
-                }
-                else
-                {
-                    inputDown = inputUp = false;
-                }
-            }
-
-            if (Input.GetButtonDown("Jump"))
-            {
-                PressJumpButton(true);
-                Jump();
-            }
-            else if (Input.GetButtonUp("Jump"))
-            {
-                PressJumpButton(false);
-            }
-        }
-        else
-        {
-            NoInput();
-        }
-        // ---------------------------------------------- \\ 
 
         bool touchingWall = CheckForWall(1) || CheckForWall(-1);
 
@@ -163,10 +116,13 @@ public class PlayerMovements : MonoBehaviour
         {
             case MovementState.Normal:
 
-                if (CheckMovementHorizontal())
+
+                if (player.IsMovingHorizontal())
                 {
+
                     if (touchingWall)
                     {
+
                         rb.velocity = new Vector2(0, rb.velocity.y);
                         if (TransitionToWallclimb())
                             return;
@@ -181,7 +137,7 @@ public class PlayerMovements : MonoBehaviour
                 }
                 break;
             case MovementState.WallClimbing:
-                CheckMovementVertical();
+                //player.CheckMovementVertical();
                 if (!HandleWallClimb())
                     return;
                 break;
@@ -189,7 +145,7 @@ public class PlayerMovements : MonoBehaviour
                 break;
         }
 
-        if (IsMovingHorizontal() || movementState == MovementState.WallClimbing)
+        if (player.IsMovingHorizontal() || movementState == MovementState.WallClimbing)
         {
             if (touchingWall)
             {
@@ -208,15 +164,15 @@ public class PlayerMovements : MonoBehaviour
             case MovementState.Normal:
                 if ((player?.CanMove() ?? false))
                 {
-                    if (IsMovingHorizontal())
-                        MoveHorizontal(moveX);
+                    if (player.IsMovingHorizontal())
+                        MoveHorizontal(player.GetMoveX());
                     else
-                        ReduceHorizontalVelocity();
+                        player.ReduceHorizontalVelocity();
                 }
                 break;
             case MovementState.WallClimbing:
                 if (player?.CanMove() ?? false)
-                    ClimbWall(moveY);
+                    ClimbWall(player.GetMoveY());
                 else
                     TransitionToNormal();
                 break;
@@ -231,151 +187,23 @@ public class PlayerMovements : MonoBehaviour
         }
     }
 
-
-    /// <summary>
-    /// Checks for horizontal input
-    /// </summary>
-    /// <returns></returns>
-    bool CheckMovementHorizontal()
-    {
-        if (inputRight && !inputLeft)
-        {
-            if (moveX == 0)
-                moveX = 1;
-            return true;
-        }
-        else if (inputLeft && !inputRight)
-        {
-            if (moveX == 0)
-                moveX = -1;
-            return true;
-        }
-        else
-        {
-            moveX = ChangeToValue.ChangeToFloat(moveX, 0f, deacceleration);
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Checks for vertical input
-    /// </summary>
-    /// <returns></returns>
-    bool CheckMovementVertical()
-    {
-        if (inputUp && !inputDown)
-        {
-            if (moveY == 0)
-                moveY = 1;
-            return true;
-        }
-        else if (inputDown && !inputUp)
-        {
-            if (moveY == 0)
-                moveY = -1;
-            return true;
-        }
-        else
-        {
-            moveY = ChangeToValue.ChangeToFloat(moveY, 0f, 0.04f);
-            return false;
-        }
-    }
-
-    public void SetMoveX(float speed)
-    {
-        this.moveX = speed;
-    }
-    public void SetMoveY(float speed)
-    {
-        this.moveY = speed;
-    }
-
-    public void SetInputRight(bool input)
-    {
-        this.inputRight = input;
-    }
-
-    public void SetInputLeft(bool input)
-    {
-        this.inputLeft = input;
-    }
-    public void SetInputUp(bool input)
-    {
-        this.inputUp = input;
-    }
-
-    public void SetInputDown(bool input)
-    {
-        this.inputDown = input;
-    }
-    public bool InputRight()
-    {
-        return inputRight;
-    }
-    public bool InputLeft()
-    {
-        return inputLeft;
-    }
-    public bool InputDown()
-    {
-        return inputDown;
-    }
-    public bool InputUp()
-    {
-        return inputUp;
-    }
-
-    public bool HasInput()
-    {
-        return inputLeft || inputRight || inputDown || inputUp;
-    }
-
-    public void NoInput()
-    {
-
-        inputLeft = inputRight = inputUp = inputDown = false;
-    }
-
     public void PressJumpButton(bool pressed)
     {
         this.holdingJumpButton = pressed;
     }
 
-    protected void ReduceHorizontalVelocity()
-    {
-        if (rb)
-            rb.velocity = new Vector2(ChangeToValue.ChangeToFloat(rb.velocity.x, 0, deacceleration), rb.velocity.y);
-    }
 
-    /// <summary>
-    /// If there is a horizontal input.
-    /// </summary>
-    /// <returns></returns>
-    public bool IsMovingHorizontal()
-    {
-        return ((inputLeft || inputRight) && (!inputRight || !inputLeft));
-    }
-
-    /// <summary>
-    /// If there is a vertical input.
-    /// </summary>
-    /// <returns></returns>
-    public bool IsMovingVertical()
-    {
-        return ((inputDown || inputUp) && (!inputDown || !inputUp));
-    }
 
     public bool GroundCheck()
     {
-        List<GameObject> collisions = Check2DCollisions.CheckCollisionDown(boxCol, 5, 0.02f);
-        foreach (var item in collisions)
-        {
-            if (LayerMask.LayerToName(item.layer) == "Ground")
-                return true;
-        }
+        List<GameObject> collisions = Check2DCollisions.CheckCollisionDown(boxCol, 5, 0.02f, layerMask: ~LayerMask.GetMask(Character.IgnoreLayers));
+        //foreach (var item in collisions)
+        //{
+        //    if (LayerMask.LayerToName(item.layer) == "Platform")
+        //        return true;
+        //}
 
-        return false;
+        return collisions.Count > 0;
     }
 
 
@@ -439,8 +267,8 @@ public class PlayerMovements : MonoBehaviour
         rb.velocity = Vector2.zero;
         rb.gravityScale = 0;
         wallReleaseCount = 0f;
-        moveX = 0f;
-        moveY = 0f;
+        player.SetMoveX(0);
+        player.SetMoveY(0);
 
         return true;
     }
@@ -460,7 +288,7 @@ public class PlayerMovements : MonoBehaviour
         }
 
 
-        if (Mathf.Abs(moveX) >= 0.7f)
+        if (Mathf.Abs(player.GetMoveX()) >= 0.7f)
         {
             rb.velocity = new Vector2(0f, 0f);
 
@@ -573,7 +401,7 @@ public class PlayerMovements : MonoBehaviour
         //If on ground and moving to opposite direction of wall
         if (grounded)
         {
-            if ((moveX < 0 && wallOnRight) || (moveX > 0 && wallOnLeft))
+            if ((player.GetMoveX() < 0 && wallOnRight) || (player.GetMoveX() > 0 && wallOnLeft))
             {
                 //Go back to normal
                 TransitionToNormal();
@@ -592,18 +420,24 @@ public class PlayerMovements : MonoBehaviour
 
     bool CheckForClimbableLedge(bool onRight = true)
     {
+        if (!EnableLedgeClimbing)
+            return false;
         float width = (boxCol?.size.x ?? 1f) * (onRight ? 1 : -1);
         float height = boxCol?.size.y ?? 1f;
 
-        Vector2 pos = new Vector2(transform.position.x + width * 0.95f, transform.position.y + height / 2f);
-        return !Check2DCollisions.CheckSquare2D(pos, Mathf.Abs(width), height, 10, ~LayerMask.GetMask(Character.IgnoreLayers), onRight ? Directions.Right : Directions.Left);
+        Vector2 pos = new Vector2(transform.position.x + width * 0.98f, transform.position.y + height / 2f);
+        var dir = onRight ? Directions.Right : Directions.Left;
+        return !Check2DCollisions.CheckSquare2D(pos, Mathf.Abs(width), height, 10, ~LayerMask.GetMask(Character.IgnoreLayers), dir) &&
+                (Check2DCollisions.CheckCollisionDown(boxCol, 5, 0.05f, minimumGroundDistance, ~LayerMask.GetMask(Character.IgnoreLayers)).Count == 0);
+
 
 
     }
 
     void ClimbLedge(bool onRight = true)
     {
-
+        if (!EnableLedgeClimbing)
+            return;
 
         float width = (boxCol?.size.x ?? 1f) * (onRight ? 1 : -1);
         float height = boxCol?.size.y ?? 1f;
@@ -613,11 +447,11 @@ public class PlayerMovements : MonoBehaviour
 
         float moveY = height / 2f - (hit ? hit.distance : 0f);
 
-        Vector2 movePoint = new Vector2(transform.position.x + width, transform.position.y + moveY);
+        Vector2 movePoint = new Vector2(transform.position.x + width, transform.position.y + player.GetMoveY());
 
         TransitionToNormal();
 
-        StartCoroutine(MovePlayer(movePoint, 0.2f, false));
+        StartCoroutine(MovePlayer(movePoint, ledgeClimbTime, false));
     }
 
     bool CheckForRelease()

@@ -55,6 +55,7 @@ public abstract class Character : MonoBehaviour
     public Timer invincibleTime = new Timer(2f);
     [ShowInInspector, ReadOnly]
     public bool invincible { get; private set; }
+    protected bool stunned;
     protected virtual void Awake()
     {
         if (!rb)
@@ -64,22 +65,10 @@ public abstract class Character : MonoBehaviour
 
     public virtual void Damage(float damage)
     {
-        if (invincible)
-            return;
-        BeforeDamage(damage); // Before damage is dealt.
+        Damage(damage, Vector2.zero, 0f);
 
-        damage = ModifyDamage(damage); // Change damage based on effects.
-
-        currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
-            OnDeath(); // Death of character.
-        }
-
-        AfterDamage(damage); // After damage is dealt.
-        StartCoroutine(Invincible(invincibleTime.Time));
     }
+
     public virtual void Damage(float damage, Vector2 force, float stunTime)
     {
         if (invincible)
@@ -101,9 +90,9 @@ public abstract class Character : MonoBehaviour
         Stun(stunTime);
     }
 
-    public virtual void Knockback(Vector2 force)
+    public virtual void Knockback(Vector2 force, bool invincibleBlock = false)
     {
-        if (!rb)
+        if (!rb || (invincibleBlock && invincible))
             return;
 
         rb.velocity = Vector2.zero;
@@ -114,7 +103,8 @@ public abstract class Character : MonoBehaviour
 
     public virtual void Stun(float duration)
     {
-        StartCoroutine(Immobilize(duration));
+        if (!stunned)
+            StartCoroutine(Immobilize(duration));
     }
 
     public virtual IEnumerator Invincible(float time)
@@ -144,8 +134,10 @@ public abstract class Character : MonoBehaviour
         if (duration < 0)
             duration = 0;
         SetCanMove(false);
+        stunned = true;
         yield return new WaitForSeconds(duration);
         SetCanMove(true);
+        stunned = false;
     }
 
     public void SetCanMove(bool canMove)
